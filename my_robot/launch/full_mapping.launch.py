@@ -88,39 +88,32 @@ def generate_launch_description():
         ]
     )
 
-    # Odometry (IMU trong D435i, frame = camera_link)
-    rgbd_odom = Node(
-        package='rtabmap_odom', executable='rgbd_odometry',
-        name='rgbd_odometry', output='screen', emulate_tty=True,
+    # Odometry chính dựa trên LiDAR (scan matching ICP)
+    icp_odom = Node(
+        package='rtabmap_odom', executable='icp_odometry',
+        name='icp_odometry', output='screen', emulate_tty=True,
         parameters=[
             ParameterFile(rtab_cfg, allow_substs=True),
             {
-                'frame_id': 'base_link',        # ✅ đổi base_link → camera_link
+                'frame_id': 'base_link',
                 'odom_frame_id': 'odom',
                 'publish_tf': True,
-                'subscribe_rgbd': False,
-                'subscribe_rgb': True,
-                'subscribe_depth': True,
-                'subscribe_imu': True,
-                'approx_sync': True,
-                'imu_topic': '/camera/imu'
+                'subscribe_scan': True,
             }
         ],
         remappings=[
-            ('rgb/image', '/camera/color/image_raw'),
-            ('depth/image', '/camera/depth/image_rect_raw'),
-            ('rgb/camera_info', '/camera/color/camera_info'),
+            ('scan', '/scan'),
         ]
     )
 
-    # SLAM (map -> odom, frame = camera_link)
+    # SLAM (map -> odom, fuse LiDAR + RGB-D)
     rtabmap = Node(
         package='rtabmap_slam', executable='rtabmap',
         name='rtabmap', output='screen', emulate_tty=True,
         parameters=[
             ParameterFile(rtab_cfg, allow_substs=True),
             {
-                'frame_id': 'base_link',        # ✅ đổi base_link → camera_link
+                'frame_id': 'base_link',
                 'odom_frame_id': 'odom',
                 'map_frame_id': 'map',
                 'publish_tf': True,
@@ -149,7 +142,7 @@ def generate_launch_description():
         realsense_launch,
         lidar,
         cam,
-        TimerAction(period=2.0, actions=[rgbd_odom]),
+        TimerAction(period=2.0, actions=[icp_odom]),
         TimerAction(period=2.0, actions=[rtabmap]),
         TimerAction(period=3.0, actions=[rviz]),
     ])
