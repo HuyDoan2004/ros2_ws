@@ -7,7 +7,7 @@ Tài liệu này mô tả **cách hiệu chỉnh ngoại (extrinsic)** giữa **
 ### Thuật toán & xử lý dữ liệu
 
 - `cam_lidar_calib_example.py`
-  - Demo thuật toán Kabsch/Umeyama với dữ liệu giả lập (synthetic) để bạn hiểu trực giác.
+  - Demo thuật toán Kabsch/Umeyama với dữ liệu giả lập (synthetic) để hiểu trực giác.
   - Không phụ thuộc ROS, chỉ dùng `numpy`.
 - `cam_lidar_calib_from_data.py`
   - Script đọc dữ liệu cặp điểm đã ghi (`points_L`, `points_C`) và tính transform **Camera ← LiDAR**:
@@ -16,7 +16,7 @@ Tài liệu này mô tả **cách hiệu chỉnh ngoại (extrinsic)** giữa **
     - Sai số `RMSE`.
     - Góc Euler `roll, pitch, yaw` (rad) và dòng `<origin ...>` để copy sang URDF.
 - `cam_lidar_calib_recorder.py`
-  - **Node ROS 2** giúp bạn **ghi lại các cặp điểm mốc** `(p_L^(i), p_C^(i))` từ 2 topic:
+  - **Node ROS 2** giúp **ghi lại các cặp điểm mốc** `(p_L^(i), p_C^(i))` từ 2 topic:
     - `geometry_msgs/PointStamped` trong hệ camera.
     - `geometry_msgs/PointStamped` trong hệ LiDAR.
 
@@ -76,7 +76,7 @@ Checkerboard:
   - Ví dụ: in bàn cờ 7 x 5 ô → inner corners = 6 x 4:
     - `pattern_cols = 6`, `pattern_rows = 4`.
 - `square_size` *(float, m)*
-  - Kích thước 1 ô (m). Không bắt buộc cho việc tìm tâm, chủ yếu dùng nếu bạn muốn debug sâu hơn.
+  - Kích thước 1 ô (m). Không bắt buộc cho việc tìm tâm, chủ yếu dùng nếu muốn debug sâu.
 
 Depth & encoding:
 
@@ -98,7 +98,7 @@ Giả sử đang ở thư mục package `my_robot`:
 ```bash
 cd My-Robot-main/my_robot
 
-ros2 run my_robot cam_checkerboard_point_node \  # nếu bạn thêm vào entry_points
+ros2 run my_robot cam_checkerboard_point_node \  # nếu thêm vào entry_points
   --ros-args \
   -p rgb_topic:=/camera/color/image_raw \
   -p depth_topic:=/camera/aligned_depth_to_color/image_raw \
@@ -106,7 +106,7 @@ ros2 run my_robot cam_checkerboard_point_node \  # nếu bạn thêm vào entry_
   -p pattern_cols:=6 -p pattern_rows:=4
 ```
 
-> Nếu bạn chưa khai node này trong `setup.py`, bạn có thể chạy trực tiếp bằng Python:
+> Nếu chưa khai node này trong `setup.py`, có thể chạy trực tiếp bằng Python:
 >
 > ```bash
 > python -m my_robot.perception.cam_checkerboard_point_node --ros-args ...
@@ -132,7 +132,7 @@ Sector góc:
     - `0°`  → trục X dương của LiDAR (thường là phía trước robot).
     - `+90°` → quay ngược chiều kim đồng hồ (trục Y dương).
   - Mặc định: `[-20°, 20°]` (một hình quạt hẹp phía trước).
-  - Bạn dùng RViz để nhìn LaserScan và điều chỉnh sao cho sector luôn bao được bảng.
+  - Dùng RViz để nhìn LaserScan và điều chỉnh sao cho sector luôn bao được bảng.
 
 Khoảng cách & số tia:
 
@@ -147,14 +147,14 @@ Frame:
 
 - `frame_id_override` *(string)*
   - Nếu rỗng (`""`) → dùng `frame_id` từ LaserScan (thường là `lidar_link`).
-  - Nếu TF của bạn dùng tên khác (ví dụ `c1m1_link`), có thể đặt tên đó vào đây.
+  - Nếu TF dùng tên khác (ví dụ `c1m1_link`), có thể đặt tên đó vào đây.
 
 ### Cách chạy node LiDAR (ví dụ Humble)
 
 ```bash
 cd My-Robot-main/my_robot
 
-ros2 run my_robot lidar_checkerboard_point_node \  # nếu bạn thêm vào entry_points
+ros2 run my_robot lidar_checkerboard_point_node \  # nếu thêm vào entry_points
   --ros-args \
   -p scan_topic:=/scan \
   -p angle_min_deg:=-20.0 -p angle_max_deg:=20.0 \
@@ -178,13 +178,13 @@ Node này **không tự tìm checkerboard**, mà **chỉ nhận 2 topic PointSta
 - `cam_topic` *(string)* – mặc định `/camera_marker_point`.
 - `lidar_topic` *(string)* – mặc định `/lidar_marker_point`.
 
-Mỗi lần bạn nhấn `Enter` trong terminal của node này, nó sẽ:
+Mỗi lần nhấn `Enter` trong terminal của node này, nó sẽ:
 
 1. Lấy **giá trị mới nhất** của `cam_topic` → `p_C^(i)`.
 2. Lấy **giá trị mới nhất** của `lidar_topic` → `p_L^(i)`.
 3. Lưu cặp `(p_L^(i), p_C^(i))` vào bộ nhớ.
 
-Khi bạn gõ `q` rồi Enter:
+Khi gõ `q` rồi Enter:
 
 - Node sẽ lưu ra thư mục `out_dir` các file:
   - `{prefix}_points_L.npy`, `{prefix}_points_C.npy`
@@ -218,7 +218,7 @@ Kết quả trong `out_dir` (vd. `calib_data`):
 
 ## 6. Tính R, t bằng Kabsch – `cam_lidar_calib_from_data.py`
 
-Sau khi đã có các file `points_L.npy` và `points_C.npy`, bạn dùng script:
+Sau khi đã có các file `points_L.npy` và `points_C.npy`, dùng script:
 
 ```bash
 cd My-Robot-main/my_robot
@@ -241,7 +241,7 @@ Script sẽ in ra:
 <origin xyz="t_x t_y t_z" rpy="roll pitch yaw"/>
 ```
 
-Bạn chỉ cần copy dòng này sang file URDF/Xacro (joint giữa camera và LiDAR).
+Sau đó chỉ cần copy dòng này sang file URDF/Xacro (joint giữa camera và LiDAR).
 
 ## 7. Ghi kết quả vào URDF
 
@@ -258,11 +258,11 @@ Ví dụ file Xacro chứa joint giữa camera và LiDAR:
 - Thay `xyz` và `rpy` bằng giá trị mà script `cam_lidar_calib_from_data.py` in ra.
 - Đảm bảo `parent`/`child` trùng khớp với frame dùng trong TF (frame của camera depth / frame của LiDAR).
 
-Sau khi chỉnh URDF, bạn có thể:
+Sau khi chỉnh URDF, có thể:
 
 - Reload mô hình robot và kiểm tra TF bằng `ros2 run tf2_tools view_frames` hoặc RViz.
 - Overlay point cloud/laser lên ảnh camera để xem độ khớp.
 
 ---
 
-Nếu bạn muốn tối ưu quy trình hơn (ví dụ: thêm `launch.py` để chạy 3 node camera + LiDAR + recorder bằng 1 lệnh trên ROS 2 Humble), có thể bổ sung một launch file mới trong thư mục `launch` của package `my_robot` sử dụng `launch_ros.actions.Node` với các tham số tương ứng ở trên.
+
