@@ -3,7 +3,7 @@
 <name>my_robot</name>
 <version>0.0.1</version>
 <description>Gói ROS 2 xuất bản RGBD + IMU + LiDAR + (tuỳ chọn) YOLO và launch RTAB-Map.</description>
-<maintainer email="example@example.com">you</maintainer>
+<maintainer email="">you</maintainer>
 <license>MIT</license>
 
 
